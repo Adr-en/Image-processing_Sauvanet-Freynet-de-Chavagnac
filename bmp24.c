@@ -19,6 +19,10 @@
 // Constant for the color depth
 #define DEFAULT_DEPTH 0x18 // 24
 
+void file_rawRead (uint32_t position, void * buffer, uint32_t size, size_t n, FILE * f) {
+    fseek(f, position, SEEK_SET);
+    fread(buffer, size, n, f);
+}
 
 static t_pixel **bmp24_allocateDataPixels(int width, int height) {
     //We allocate memory for each row (height)
@@ -51,36 +55,36 @@ static void bmp24_freeDataPixels(t_pixel **pixels, int height) {
 }
 
 t_bmp24 *bmp24_allocate(int width, int height, int colorDepth) {
-    t_bmp24 *img = (t_bmp24 *)malloc(sizeof(t_bmp24));
-    if (!img) {
+    t_bmp24 *image = (t_bmp24 *)malloc(sizeof(t_bmp24));
+    if (!image) {
         printf("Error : can't allocate memory");
         return NULL;
     }
     //Save the properties of the image
-    img->width = width;
-    img->height = height;
-    img->colorDepth = colorDepth;
-    img->data = bmp24_allocateDataPixels(width, height); //Allocate the matrix itself
+    image->width = width;
+    image->height = height;
+    image->colorDepth = colorDepth;
+    image->data = bmp24_allocateDataPixels(width, height); //Allocate the matrix itself
 
-    if (!img->data) {
-        free(img);
+    if (!image->data) {
+        free(image);
         return NULL;
     }
-    return img;
+    return image;
 }
 
-t_bmp24 *bmp24_loadImage(const char *filename) {
-    FILE *file = fopen(filename, "rb"); //We need to use "rb" to open a file into "read binary" mode
-    if (!file) {
-        printf("Error : can't open file : %s", filename);
+t_bmp24 *bmp24_loadImage(const char *f_name) {
+    FILE *f = fopen(f_name, "rb"); //We need to use "rb" to open a file into "read binary" mode
+    if (!f) {
+        printf("Error : can't open file : %s", f_name);
         return NULL;
     }
 
     uint16_t type; //Read the type to see if it is a BMP file
-    file_rawRead(0, &type, sizeof(uint16_t), 1, file);
+    file_rawRead(0, &type, sizeof(uint16_t), 1, f);
     if (type != BMP_TYPE) {
-        fclose(file);
-        printf("Error : can't read bmp file %s : wrong type", filename);
+        fclose(f);
+        printf("Error : can't read bmp file %s : wrong type", f_name);
         return NULL;
     }
 
@@ -88,36 +92,36 @@ t_bmp24 *bmp24_loadImage(const char *filename) {
     uint16_t depth;
 
     //Read the headers to extract the width, height and depth of the image
-    file_rawRead(BITMAP_WIDTH, &width, sizeof(int), 1, file);
-    file_rawRead(BITMAP_HEIGHT, &height, sizeof(int), 1, file);
-    file_rawRead(BITMAP_DEPTH, &depth, sizeof(uint16_t), 1, file);
+    file_rawRead(BITMAP_WIDTH, &width, sizeof(int), 1, f);
+    file_rawRead(BITMAP_HEIGHT, &height, sizeof(int), 1, f);
+    file_rawRead(BITMAP_DEPTH, &depth, sizeof(uint16_t), 1, f);
     if (depth != 24) { //Check if it is, in fact a 24-bit image before any action
-        printf("Error : can't read bmp file %s : depth is not 24", filename);
-        fclose(file);
+        printf("Error : can't read bmp file %s : depth is not 24", f_name);
+        fclose(f);
         return NULL;
     }
     //Allocate new memory for the image
-    t_bmp24 *img = bmp24_allocate(width, height, depth);
-    if (!img) {
+    t_bmp24 *image = bmp24_allocate(width, height, depth);
+    if (!image) {
         printf("Error : can't allocate memory");
-        fclose(file);
+        fclose(f);
         return NULL;
     }
     //Read the header and the header info from the file
-    file_rawRead(0, &img->header, sizeof(t_bmp_header), 1, file);
-    file_rawRead(sizeof(t_bmp_header), &img->header_info, sizeof(t_bmp_info), 1, file);
+    file_rawRead(0, &image->header, sizeof(t_bmp_header), 1, f);
+    file_rawRead(sizeof(t_bmp_header), &image->header_info, sizeof(t_bmp_info), 1, f);
 
-    fseek(file, img->header.offset, SEEK_SET); //Put the image pointer to the beginning of the file
+    fseek(f, image->header.offset, SEEK_SET); //Put the image pointer to the beginning of the file
 
     //Go through the image and read the color of every pixel (We have to go through it from the bottom to the top i.e y--)
-    for (int y = img->height - 1; y >= 0; y--) {
-        for (int x = 0; x < img->width; x++) {
-            fread(&img->data[y][x].blue, 1, 1, file);
-            fread(&img->data[y][x].green, 1, 1, file);
-            fread(&img->data[y][x].red, 1, 1, file);
+    for (int y = image->height - 1; y >= 0; y--) {
+        for (int x = 0; x < image->width; x++) {
+            fread(&image->data[y][x].blue, 1, 1, f);
+            fread(&image->data[y][x].green, 1, 1, f);
+            fread(&image->data[y][x].red, 1, 1, f);
         }
     }
 
-    fclose(file);
-    return img;
+    fclose(f);
+    return image;
 }

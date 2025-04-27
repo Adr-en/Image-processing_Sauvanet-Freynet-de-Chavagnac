@@ -50,12 +50,12 @@ typedef struct {
 
 
 //Functions to write
-t_bmp24* bmp24_loadImage(const char* filename);
-void bmp24_saveImage(t_bmp24* img, const char* filename);
-void bmp24_free(t_bmp24* img);
+t_bmp24* bmp24_loadImage(const char* f_name);
+void bmp24_saveImage(t_bmp24* image, const char* f_name);
+void bmp24_free(t_bmp24* image);
 
-void bmp24_negative(t_bmp24* img);
-void bmp24_grayscale(t_bmp24* img);
-void bmp24_brightness(t_bmp24* img, int value);
+void bmp24_negative(t_bmp24* image);
+void bmp24_grayscale(t_bmp24* image);
+void bmp24_brightness(t_bmp24* image, int value);
 
 #endif

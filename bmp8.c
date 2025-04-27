@@ -3,58 +3,34 @@
 #include "bmp8.h"
 
 
-/*t_bmp8 * bmp8_loadImage(const char * filename){
-  t_bmp8 * p_image = (t_bmp8 *) malloc(sizeof(t_bmp8));
-  if (p_image == NULL){
-    printf("Memory allocation error\n");
-    return NULL;
-  }
-
-  return p_image;
-  }
 
 
-
- //La prof a écrit ça au tableau
- ////FILE *f = fopen("lena_color.bmp", "rb");
- // unsigned header[54];
- //     fread(header, 1, 54, f); //54 element of 1 byte
-
-  //int width = *(unsigned int *) (&header[18]);     //(unsigned int *) correspond to 4 bytes
-  //int height = *(unsigned int *) (&header[22]);    // when we fread a file the index pointed by &header is the last one (54) we have to open it again to go back to index 0
-
-
-*/
-
-
-
-
-t_bmp8* bmp8_loadImage(const char* filename) {
-    FILE* file = fopen(filename, "rb");
-    if (!file) {
-        printf("Error: Could not open file %s\n", filename);
+t_bmp8* bmp8_loadImage(const char* f_name) {
+    FILE* f = fopen(f_name, "rb");
+    if (!f) {
+        printf("Error: Could not open file %s\n", f_name);
         return NULL;
     }
 
     t_bmp8* img = (t_bmp8*)malloc(sizeof(t_bmp8));
     if (!img) {
         printf("Error: Memory allocation failed\n");
-        fclose(file);
+        fclose(f);
         return NULL;
     }
 
-    fread(img->header, sizeof(unsigned char), 54, file);
-    fread(img->colorTable, sizeof(unsigned char), 1024, file);
+    fread(img->header, sizeof(unsigned char), 54, f);
+    fread(img->colorTable, sizeof(unsigned char), 1024, f);
 
-    img->width = *(unsigned int*)&img->header[18];
-    img->height = *(unsigned int*)&img->header[22];
-    img->colorDepth = *(unsigned int*)&img->header[28];
-    img->dataSize = *(unsigned int*)&img->header[34];
+    img->width = *(unsigned int*)(&img->header[18]);
+    img->height = *(unsigned int*)(&img->header[22]);
+    img->colorDepth = *(unsigned int*)(&img->header[28]);
+    img->dataSize = *(unsigned int*)(&img->header[34]);
 
     if (img->colorDepth != 8) {
         printf("Error: Not an 8-bit grayscale image\n");
         free(img);
-        fclose(file);
+        fclose(f);
         return NULL;
     }
 
@@ -62,42 +38,33 @@ t_bmp8* bmp8_loadImage(const char* filename) {
     if (!img->data) {
         printf("Error: Memory allocation for data failed\n");
         free(img);
-        fclose(file);
+        fclose(f);
         return NULL;
     }
 
-    fread(img->data, sizeof(unsigned char), img->dataSize, file);
-    fclose(file);
+    fread(img->data, sizeof(unsigned char), img->dataSize, f);
+    fclose(f);
     return img;
 }
 
 
 
 
-
-
-
-//2
-
-void bmp8_saveImage(const char* filename, t_bmp8* img) {
-    FILE* file = fopen(filename, "wb");
-    if (!file) {
-        printf("Error: Could not open file %s for writing\n", filename);
+void bmp8_saveImage(const char* f_name, t_bmp8* img) {
+    FILE* f = fopen(f_name, "wb");
+    if (!f) {
+        printf("Error: Could not open file %s for writing\n", f_name);
         return;
     }
 
-    fwrite(img->header, sizeof(unsigned char), 54, file);
-    fwrite(img->colorTable, sizeof(unsigned char), 1024, file);
-    fwrite(img->data, sizeof(unsigned char), img->dataSize, file);
+    fwrite(img->header, sizeof(unsigned char), 54, f);
+    fwrite(img->colorTable, sizeof(unsigned char), 1024, f);
+    fwrite(img->data, sizeof(unsigned char), img->dataSize, f);
 
-    fclose(file);
+    fclose(f);
 }
 
 
-
-
-
-//3
 
 void bmp8_free(t_bmp8* img) {
     if (img) {
@@ -108,24 +75,15 @@ void bmp8_free(t_bmp8* img) {
 
 
 
-
-
-
-
-//4
-
 void bmp8_printInfo(t_bmp8* img) {
     printf("Image Info:\n");
-    printf("Width: %u\n", img->width);
-    printf("Height: %u\n", img->height);
-    printf("Color Depth: %u\n", img->colorDepth);
-    printf("Data Size: %u bytes\n", img->dataSize);
+    printf("\tWidth: %u\n", img->width);
+    printf("\tHeight: %u\n", img->height);
+    printf("\tColor Depth: %u\n", img->colorDepth);
+    printf("\tData Size: %u bytes\n", img->dataSize);
 }
 
 
-
-
-//5
 
 void bmp8_negative(t_bmp8* img) {
     for (unsigned int i = 0; i < img->dataSize; ++i) {
@@ -136,33 +94,21 @@ void bmp8_negative(t_bmp8* img) {
 
 
 
-
-
-//6
-
 void bmp8_brightness(t_bmp8* img, int value) {
     for (unsigned int i = 0; i < img->dataSize; ++i) {
-        int newValue = img->data[i] + value;
-        if (newValue > 255) newValue = 255;
-        if (newValue < 0) newValue = 0;
-        img->data[i] = (unsigned char)newValue;
+        int new_val = img->data[i] + value;
+        if (new_val > 255) new_val = 255;
+        if (new_val < 0) new_val = 0;
+        img->data[i] = (unsigned char)new_val;
     }
 }
 
-
-
-
-
-//7
 
 void bmp8_threshold(t_bmp8* img, int threshold) {
     for (unsigned int i = 0; i < img->dataSize; ++i) {
         img->data[i] = (img->data[i] >= threshold) ? 255 : 0;
     }
 }
-
-
-//8
 
 
 void bmp8_applyFilter(t_bmp8* img, float** kernel, int kernelSize) {
