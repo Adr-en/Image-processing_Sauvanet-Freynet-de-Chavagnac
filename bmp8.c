@@ -142,3 +142,28 @@ void bmp8_applyFilter(t_bmp8* img, int** kernel, int kernelSize) {
     free(img->data);
     img->data = newData;
 }
+
+//
+// Created by Raphaël on 02/05/2025.
+//
+
+unsigned int * bmp8_computeHistogram(t_bmp8 * img) {
+    unsigned int *histogram = calloc(256, sizeof(unsigned int));
+    for (int i = 0; i < img->width; i++) {
+        for (int j = 0; j < img->height; j++) {
+            unsigned char val = img->data[j * img->width + i];
+            histogram[val]++;
+        }
+
+    }
+    return histogram;
+}
+
+
+unsigned int * bmp8_computeCDF(unsigned int * hist) {
+
+}
+
+
+void bmp8_equalize(t_bmp8 * img, unsigned int * hist_eq);
+
