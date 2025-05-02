@@ -4,7 +4,6 @@
 
 
 
-
 t_bmp8* bmp8_loadImage(const char* f_name) {
     FILE* f = fopen(f_name, "rb");
     if (!f) {
@@ -111,7 +110,7 @@ void bmp8_threshold(t_bmp8* img, int threshold) {
 }
 
 
-void bmp8_applyFilter(t_bmp8* img, float** kernel, int kernelSize) {
+void bmp8_applyFilter(t_bmp8* img, int** kernel, int kernelSize) {
     int n = kernelSize / 2;
     unsigned char* newData = (unsigned char*)malloc(img->dataSize);
     if (!newData) {
