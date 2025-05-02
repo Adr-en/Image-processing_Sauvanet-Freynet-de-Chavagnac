@@ -39,6 +39,8 @@ float emboss[9] = {-2, -1, 0, -1, 1, 1, 0, 1, 2};
 float sharpen[9] = {0, -1, 0, -1, 5, -1, 0, -1, 0};
 
 
-
+unsigned int * bmp8_computeHistogram(t_bmp8 * img);
+unsigned int * bmp8_computeCDF(unsigned int * hist);
+void bmp8_equalize(t_bmp8 * img, unsigned int * hist_eq);
 
 #endif // BMP8_H
