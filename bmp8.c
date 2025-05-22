@@ -1,8 +1,10 @@
-# include <stdio.h>
-# include <stdlib.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "bmp8.h"
 
 
+
+// Functions to read and write images
 
 t_bmp8* bmp8_loadImage(const char* f_name) {
     FILE* f = fopen(f_name, "rb");
@@ -47,8 +49,6 @@ t_bmp8* bmp8_loadImage(const char* f_name) {
 }
 
 
-
-
 void bmp8_saveImage(const char* f_name, t_bmp8* img) {
     FILE* f = fopen(f_name, "wb");
     if (!f) {
@@ -64,14 +64,12 @@ void bmp8_saveImage(const char* f_name, t_bmp8* img) {
 }
 
 
-
 void bmp8_free(t_bmp8* img) {
     if (img) {
         free(img->data);
         free(img);
     }
 }
-
 
 
 void bmp8_printInfo(t_bmp8* img) {
@@ -84,13 +82,14 @@ void bmp8_printInfo(t_bmp8* img) {
 
 
 
+
+// Image processing functions
+
 void bmp8_negative(t_bmp8* img) {
     for (unsigned int i = 0; i < img->dataSize; ++i) {
         img->data[i] = 255 - img->data[i];
     }
 }
-
-
 
 
 void bmp8_brightness(t_bmp8* img, int value) {
@@ -108,9 +107,6 @@ void bmp8_threshold(t_bmp8* img, int threshold) {
         img->data[i] = (img->data[i] >= threshold) ? 255 : 0;
     }
 }
-
-
-#include <math.h>
 
 
 void bmp8_applyFilter(t_bmp8 *img, float **kernel, int kernelSize) {
@@ -168,50 +164,54 @@ void bmp8_applyFilter(t_bmp8 *img, float **kernel, int kernelSize) {
 }
 
 
+// Histogram
 
-//
-// Created by Raphaël on 02/05/2025.
-//
-
-unsigned int * bmp8_computeHistogram(t_bmp8 * img) {
-    unsigned int *histogram = calloc(256, sizeof(unsigned int));
-    for (int i = 0; i < img->width; i++) {
-        for (int j = 0; j < img->height; j++) {
-            unsigned char val = img->data[j * img->width + i];
-            histogram[val]++;
-        }
-
+unsigned int *bmp8_computeHistogram(t_bmp8 *img) {
+    if (img == NULL || img->data == NULL) {
+        return NULL;
     }
-    return histogram;
+
+
+    unsigned int *hist = (unsigned int *)calloc(256, sizeof(unsigned int));
+    if (hist == NULL) {
+        return NULL;
+    }
+
+
+    for (unsigned int i = 0; i < img->dataSize; i++) {
+        unsigned char pixel = img->data[i];
+        hist[pixel]++;
+    }
+
+    return hist;
 }
 
 
-unsigned int * bmp8_computeCDF(unsigned int * hist) {
-    //compute cdf
-    unsigned int* cdf = calloc(256, sizeof(int));
+unsigned int *bmp8_computeCDF(unsigned int *hist) {
+    if (hist == NULL) {
+        return NULL;
+    }
+
+
+    unsigned int *cdf = (unsigned int *)malloc(256 * sizeof(unsigned int));
+    if (cdf == NULL) {
+        return NULL;
+    }
+
     cdf[0] = hist[0];
     for (int i = 1; i < 256; i++) {
-        cdf[i] = hist[i]+cdf[i-1];
+        cdf[i] = cdf[i - 1] + hist[i];
     }
-    //compute cdf_min
-    for ( int i = 0; i < 256; i++) {
-        //if cdf
-    }
-
-    //compute normalize histogramme
-    unsigned int *hist_norm =  calloc(256, sizeof(int)); ;
-    for (int i = 1; i < 256; i++) {
-       // hist_norm[i] =
-    }
-
-
-    free(cdf);
-    free(hist_norm);
-    return hist_norm;
-
-
+    return cdf;
 }
 
 
-void bmp8_equalize(t_bmp8 * img, unsigned int * hist_eq);
+void bmp8_equalize(t_bmp8 *img, unsigned int *hist_eq) {
+    if (img == NULL || img->data == NULL || hist_eq == NULL) {
+        return;
+    }
 
+    for (unsigned int i = 0; i < img->dataSize; i++) {
+        img->data[i] = (unsigned char)hist_eq[img->data[i]];
+    }
+}
