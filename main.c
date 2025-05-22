@@ -1,7 +1,11 @@
 #include <stdio.h>
 #include "bmp8.h"
 
-
+float box_blur[3][3] = {1/9,1/9,1/9,1/9,1/9,1/9,1/9};
+float gaussian_blur[3][3] = {1/16, 1/8, 1/16, 1/4, 1/16, 1/8, 1/16};
+float outline[3][3] = {-1, -1, -1, -1, -1, -1, -1, -1, -1};
+float emboss[3][3] = {-2, -1, 0, -1, 1, 1, 0, 1, 2};
+float sharpen[3][3] = {0, -1, 0, -1, 5, -1, 0, -1, 0};
 
 int main() {
     // Load the image
@@ -27,9 +31,19 @@ int main() {
     bmp8_brightness(img, 50);
     bmp8_saveImage("lena_gray_brightness.bmp", img);
 
-    //img = img_temp;
+    img = img_temp;
     //bmp8_threshold(img, 128);
     //bmp8_saveImage("lena_gray_threshold.bmp", img);
+
+    printf("good");
+    bmp8_applyFilter(img, box_blur, 9);
+    printf("okkkk");
+    bmp8_saveImage("lena_gray_filtered.bmp", img);
+    printf("mamaaaaaaaaaaaaaaaaaaaaaa");
+
+
+    printf("Filtrage terminé et image enregistrée sous 'barbara_gray_filtered.bmp'.\n");
+    return 0;
 
 
     // Free the memory

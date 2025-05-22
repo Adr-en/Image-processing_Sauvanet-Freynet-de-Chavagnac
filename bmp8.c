@@ -110,38 +110,64 @@ void bmp8_threshold(t_bmp8* img, int threshold) {
 }
 
 
-void bmp8_applyFilter(t_bmp8* img, int** kernel, int kernelSize) {
-    int n = kernelSize / 2;
-    unsigned char* newData = (unsigned char*)malloc(img->dataSize);
-    if (!newData) {
-        printf("Error: Memory allocation failed for filtering\n");
+#include <math.h>
+
+
+void bmp8_applyFilter(t_bmp8 *img, float **kernel, int kernelSize) {
+    // Vérification des paramètres
+    if (!img || !img->data || !kernel || kernelSize <= 0 || kernelSize % 2 == 0) {
+        fprintf(stderr, "Erreur : paramètres invalides.\n");
         return;
     }
 
-    // Copy original data for border pixels
-    for (unsigned int i = 0; i < img->dataSize; ++i) {
-        newData[i] = img->data[i];
+    int width = img->width;
+    int height = img->height;
+    int expectedSize = width * height;
+    if (img->dataSize != expectedSize) {
+        fprintf(stderr, "Erreur : taille de données incohérente (%u au lieu de %u).\n", img->dataSize, expectedSize);
+        return;
     }
 
-    for (unsigned int y = 1; y < img->height - 1; ++y) {
-        for (unsigned int x = 1; x < img->width - 1; ++x) {
-            float sum = 0.0f;
-            for (int j = -n; j <= n; ++j) {
-                for (int i = -n; i <= n; ++i) {
-                    unsigned int pixel = img->data[(y - j) * img->width + (x - i)];
-                    sum += kernel[j + n][i + n] * pixel;
+    int n = kernelSize / 2;
+
+    // Allocation de mémoire pour une copie temporaire de l'image
+    unsigned char *temp = malloc(img->dataSize);
+    if (!temp) {
+        fprintf(stderr, "Erreur : impossible d'allouer la mémoire pour l'image temporaire.\n");
+        return;
+    }
+
+    // Copie initiale de l'image
+    for (unsigned int i = 0; i < img->dataSize; i++) {
+        temp[i] = img->data[i];
+    }
+
+    // Application du filtre par convolution (sans gérer les bords)
+    for (int y = n; y < height - n; y++) {
+        for (int x = n; x < width - n; x++) {
+            float sum = 0.0;
+            for (int i = -n; i <= n; i++) {
+                for (int j = -n; j <= n; j++) {
+                    int xi = x + j;
+                    int yi = y + i;
+                    if (xi >= 0 && xi < width && yi >= 0 && yi < height) {
+                        unsigned char pixel = temp[yi * width + xi];
+                        sum += pixel * kernel[i + n][j + n];
+                    }
                 }
             }
-            // Clamp to [0,255]
+            // Clamping entre 0 et 255
             if (sum < 0) sum = 0;
             if (sum > 255) sum = 255;
-            newData[y * img->width + x] = (unsigned char)sum;
+            img->data[y * width + x] = (unsigned char)roundf(sum);
         }
     }
 
-    free(img->data);
-    img->data = newData;
+    // Libération de l'image temporaire
+    free(temp);
 }
+
+
 
 //
 // Created by Raphaël on 02/05/2025.
@@ -161,6 +187,28 @@ unsigned int * bmp8_computeHistogram(t_bmp8 * img) {
 
 
 unsigned int * bmp8_computeCDF(unsigned int * hist) {
+    //compute cdf
+    unsigned int* cdf = calloc(256, sizeof(int));
+    cdf[0] = hist[0];
+    for (int i = 1; i < 256; i++) {
+        cdf[i] = hist[i]+cdf[i-1];
+    }
+    //compute cdf_min
+    for ( int i = 0; i < 256; i++) {
+        //if cdf
+    }
+
+    //compute normalize histogramme
+    unsigned int *hist_norm =  calloc(256, sizeof(int)); ;
+    for (int i = 1; i < 256; i++) {
+       // hist_norm[i] =
+    }
+
+
+    free(cdf);
+    free(hist_norm);
+    return hist_norm;
+
 
 }
 
