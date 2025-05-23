@@ -276,3 +276,64 @@ void bmp24_applyFilter(t_bmp24 *image, float **kernel, int kernelSize) {
     bmp24_freeDataPixels(image->data, image->height);
     image->data = newData;
 }
+
+
+void bmp24_equalize(t_bmp24 *image) {
+    int width = image->width;
+    int height = image->height;
+    int totalPixels = width * height;
+
+    //Initialisation of the histograms for each pixel color
+    int histogram_R[256] = {0};
+    int histogram_G[256] = {0};
+    int histogram_B[256] = {0};
+
+    //For each pixel color, we increase the size of the histogram
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            t_pixel p = image->data[y][x];
+            histogram_R[p.red]++;
+            histogram_G[p.green]++;
+            histogram_B[p.blue]++;
+        }
+    }
+
+    ///We compute the CDF to proportionate each histogram
+    int cdf_R[256], cdf_G[256], cdf_B[256];
+    cdf_R[0] = histogram_R[0];
+    cdf_G[0] = histogram_G[0];
+    cdf_B[0] = histogram_B[0];
+
+    //Calculation of CDF
+    for (int i = 1; i < 256; i++) {
+        cdf_R[i] = cdf_R[i - 1] + histogram_R[i];
+        cdf_G[i] = cdf_G[i - 1] + histogram_G[i];
+        cdf_B[i] = cdf_B[i - 1] + histogram_B[i];
+    }
+
+    //We initialise the equalized histograms for each pixel color
+    uint8_t equalized_R[256];
+    uint8_t equalized_G[256];
+    uint8_t equalized_B[256];
+
+    int cdfMin_R = cdf_R[0];
+    int cdfMin_G = cdf_G[0];
+    int cdfMin_B = cdf_B[0];
+
+    //We compute each equalised pixel and ensuring that each pixel is between 0 and 255
+    for (int i = 0; i < 256; i++) {
+        equalized_R[i] = round(((float)(cdf_R[i] - cdfMin_R) / (totalPixels - cdfMin_R)) * 255);
+        equalized_G[i] = round(((float)(cdf_G[i] - cdfMin_G) / (totalPixels - cdfMin_G)) * 255);
+        equalized_B[i] = round(((float)(cdf_B[i] - cdfMin_B) / (totalPixels - cdfMin_B)) * 255);
+    }
+
+    //Finally, we apply the new pixel values to the image
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            t_pixel *p = &image->data[y][x];
+            p->red   = equalized_R[p->red];
+            p->green = equalized_G[p->green];
+            p->blue  = equalized_B[p->blue];
+        }
+    }
+}
