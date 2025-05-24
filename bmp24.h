@@ -58,4 +58,5 @@ void bmp24_negative(t_bmp24* image);
 void bmp24_grayscale(t_bmp24* image);
 void bmp24_brightness(t_bmp24* image, int value);
 
+t_pixel bmp24_convolution(t_bmp24 *image, int x, int y, float **kernel, int kernelSize);
 #endif

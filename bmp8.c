@@ -45,6 +45,7 @@ t_bmp8* bmp8_loadImage(const char* f_name) {
 
     fread(img->data, sizeof(unsigned char), img->dataSize, f);
     fclose(f);
+    printf("Image loaded successfully!\n");
     return img;
 }
 
@@ -61,6 +62,7 @@ void bmp8_saveImage(const char* f_name, t_bmp8* img) {
     fwrite(img->data, sizeof(unsigned char), img->dataSize, f);
 
     fclose(f);
+    printf("Image saved successfully!\n");
 }
 
 
@@ -89,6 +91,7 @@ void bmp8_negative(t_bmp8* img) {
     for (unsigned int i = 0; i < img->dataSize; ++i) {
         img->data[i] = 255 - img->data[i];
     }
+    printf("Negative filter applied successfully!\n");
 }
 
 
@@ -99,6 +102,7 @@ void bmp8_brightness(t_bmp8* img, int value) {
         if (new_val < 0) new_val = 0;
         img->data[i] = (unsigned char)new_val;
     }
+    printf("Brightness adjusted successfully!\n");
 }
 
 
@@ -106,6 +110,7 @@ void bmp8_threshold(t_bmp8* img, int threshold) {
     for (unsigned int i = 0; i < img->dataSize; ++i) {
         img->data[i] = (img->data[i] >= threshold) ? 255 : 0;
     }
+    printf("Black and white conversion applied successfully!\n");
 }
 
 

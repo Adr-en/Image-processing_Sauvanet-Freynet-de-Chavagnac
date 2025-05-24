@@ -163,6 +163,7 @@ t_bmp24 *bmp24_loadImage(const char *f_name) {
 
     bmp24_readPixelData(image, f); //Read every pixels of the image
     fclose(f);
+    printf("Image loaded successfully!\n");
     return image;
 }
 
@@ -181,6 +182,7 @@ void bmp24_saveImage(t_bmp24* image, const char* f_name) {
     //Rewrite every pixel of the image in the file
     bmp24_writePixelData(image, f);
     fclose(f);
+    printf("Image saved successfully!\n");
 }
 
 
