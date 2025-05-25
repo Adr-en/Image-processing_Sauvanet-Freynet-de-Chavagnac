@@ -313,9 +313,8 @@ void bmp24_brightness (t_bmp24 * image, int value) {
     }
 }
 
-//This function will apply a convolution filter to a given pixel (x, y) of the image img using the convolution
-//kernel kernel of size kernelSize. The function computes and returns the new value of the pixel after applying
-//the filter.
+//This function will apply a convolution filter to a given pixel (x, y) of the image img using the convolution kernel.
+//The function computes and returns the new value of the pixel after applying
 t_pixel bmp24_convolution(t_bmp24 *image, int x, int y, float **kernel, int kernelSize) {
 
     float red = 0, green = 0, blue = 0;
@@ -355,6 +354,7 @@ t_pixel bmp24_convolution(t_bmp24 *image, int x, int y, float **kernel, int kern
     return result;
 }
 
+//This function will apply the convolution function to every pixel in the image
 void bmp24_applyFilter(t_bmp24 *image, float **kernel, int kernelSize) {
     //We allocate space for the new data of the pixel
     t_pixel **newData = bmp24_allocateDataPixels(image->width, image->height);
