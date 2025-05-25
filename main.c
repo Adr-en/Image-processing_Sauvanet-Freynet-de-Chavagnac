@@ -60,7 +60,11 @@ int main() {
         }
 
 
+
+
+    bmp8_test();
     bmp24_test();
+
 
 
     int answer = 0;
@@ -74,9 +78,18 @@ int main() {
     bit = 8;
 
 
+
+
     if (answer == 1) {
-        img = bmp24_loadImage("C:\\Users\\adrie\\CLionProjects\\Image-Processing_\\lena_color.bmp");
+        t_bmp24 * img = bmp24_loadImage("lena_color.bmp");
+        bmp24_printInfo(img);
+        printf("%d\n", img -> header.size);
+        printf("%d\n", img -> header_info.size);
+        printf("%d\n", img -> header_info.bits);
+
         bit = 24;
+
+
 
     }
     else {
@@ -84,6 +97,7 @@ int main() {
         bmp8_printInfo(img);
 
     }
+
 
 
 

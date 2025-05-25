@@ -224,7 +224,7 @@ void bmp8_test() {
     img = bmp8_loadImage("lena_gray.bmp");
     printf("Applying outline filter.\n");
     bmp8_applyFilter(img, outline, 3);
-    bmp8_saveImage("lena_gray_filtered.bmp", img);
+    bmp8_saveImage("lena_gray_outline.bmp", img);
     printf("Image saved as lena_gray_outline.bmp\n\n");
 
 
@@ -321,11 +321,13 @@ void bmp24_test() {
     bmp24_printInfo(img);
     printf("\n\n");
 
+
     // Negative
     bmp24_negative(img);
     printf("Applying negative filter.\n");
     bmp24_saveImage(img, "lena_color_negative.bmp");
     printf("Image saved as lena_color_negative.bmp\n\n");
+
 
     // Brightness
     img = bmp24_loadImage("lena_color.bmp");
@@ -389,3 +391,5 @@ void bmp24_test() {
     printf("Everything was freed.\n");
     printf("Everything works well, you can go see images in the cmake-build-debug repository.\n");
 }
+
+
