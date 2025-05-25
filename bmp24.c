@@ -130,9 +130,11 @@ t_bmp24 *bmp24_loadImage(const char *filename) {
     }
 
     //Manually read due to the issue
+    // variable initialisation
     uint16_t type;
-    int32_t width, height;
     uint16_t bits;
+
+    int32_t width, height;
     uint32_t compression, offset;
 
     fseek(f, 0, SEEK_SET);
@@ -145,33 +147,33 @@ t_bmp24 *bmp24_loadImage(const char *filename) {
 
     fseek(f, 28, SEEK_SET);
     fread(&bits, sizeof(uint16_t), 1, f);
-
     fseek(f, 30, SEEK_SET);
     fread(&compression, sizeof(uint32_t), 1, f);
-
     fseek(f, 10, SEEK_SET);
     fread(&offset, sizeof(uint32_t), 1, f);
 
-    //Validate BMP 24-bit uncompressed format
+    // Check if compressed or not
     if (type != 0x4D42 || bits != 24 || compression != 0) {
         printf("Incompatible file. BMP 24 bits must be uncompressed .\n");
         fclose(f);
         return NULL;
     }
 
-    //Allocate the structure
+    // Allocation of memory
     t_bmp24 *img = malloc(sizeof(t_bmp24));
     img->width = width;
     img->height = height;
     img->colorDepth = bits;
     img->data = bmp24_allocateDataPixels(width, height);
+
+    //Check allocation
     if (!img->data) {
         fclose(f);
         free(img);
         return NULL;
     }
 
-    //Read pixel data starting at "offset" line by line
+    // Changing each pixel line by line
     fseek(f, offset, SEEK_SET);
     int padding = (4 - (width * 3) % 4) % 4;
 
@@ -186,34 +188,48 @@ t_bmp24 *bmp24_loadImage(const char *filename) {
         //Skip padding bytes
         fseek(f, padding, SEEK_CUR);
     }
-
+    printf("Image loaded correctly : %dx%d\n", width, height);
     fclose(f);
-    printf("Image loaded : %dx%d\n", width, height);
+
     return img;
 }
 
-//Same for this function, we couldn't use the previous functions but we manage to make it work efficiently
-void bmp24_saveImage(t_bmp24 *img, const char *filename) {
+void bmp24_printInfo(t_bmp24* image) {
+    //
+    if (!image) {
+        printf("Image is empty\n");
+        return;
+    }
+    printf("Image width : %d\n", image->width);
+    printf("Image height : %d\n", image->height);
+    printf("Image depth : %d\n", image->colorDepth);
+    printf("Image data : \n",);
+
+}
+
+ // Same for this function, we couldn't use the previous functions but we manage to make it work efficiently
+
+void bmp24_saveImage(t_bmp24 *image, const char *filename) {
     FILE *f = fopen(filename, "wb");
     if (!f) {
         printf("Writing error  %s\n", filename);
         return;
     }
 
-    //Write BMP header (14 bytes)
+    // Variable initialisation
     uint16_t type = 0x4D42;
     uint32_t offset = 54;
-    uint32_t size = offset + (img->width * 3 + (4 - (img->width * 3 % 4)) % 4) * img->height;
+    uint32_t size = offset + (image->width * 3 + (4 - (image->width * 3 % 4)) % 4) * image->height;
     uint16_t reserved = 0;
 
-    //Write BMP info header (40 bytes)
+    // Writing every info
     fwrite(&type, sizeof(uint16_t), 1, f);
     fwrite(&size, sizeof(uint32_t), 1, f);
     fwrite(&reserved, sizeof(uint16_t), 1, f);
     fwrite(&reserved, sizeof(uint16_t), 1, f);
     fwrite(&offset, sizeof(uint32_t), 1, f);
 
-    //Write header info (40 octets)
+
     uint32_t headerSize = 40;
     uint16_t planes = 1;
     uint16_t bits = 24;
@@ -222,29 +238,29 @@ void bmp24_saveImage(t_bmp24 *img, const char *filename) {
     int32_t resolution = 2835;
 
     fwrite(&headerSize, sizeof(uint32_t), 1, f);
-    fwrite(&img->width, sizeof(int32_t), 1, f);
-    fwrite(&img->height, sizeof(int32_t), 1, f);
+    fwrite(&image->width, sizeof(int32_t), 1, f);
+    fwrite(&image->height, sizeof(int32_t), 1, f);
     fwrite(&planes, sizeof(uint16_t), 1, f);
     fwrite(&bits, sizeof(uint16_t), 1, f);
     fwrite(&compression, sizeof(uint32_t), 1, f);
+
     fwrite(&imageSize, sizeof(uint32_t), 1, f);
     fwrite(&resolution, sizeof(int32_t), 1, f);
     fwrite(&resolution, sizeof(int32_t), 1, f);
     fwrite(&compression, sizeof(uint32_t), 1, f);
-
     fwrite(&compression, sizeof(uint32_t), 1, f);
 
     //Write pixels
-    int padding = (4 - (img->width * 3) % 4) % 4;
+    int padding = (4 - (image->width * 3) % 4) % 4;
     unsigned char pad[3] = {0, 0, 0};
 
-    for (int y = img->height - 1; y >= 0; y--) {
-        for (int x = 0; x < img->width; x++) {
+    for (int y = image->height - 1; y >= 0; y--) {
+        for (int x = 0; x < image->width; x++) {
             unsigned char bgr[3] = {
-                    img->data[y][x].blue,
-                    img->data[y][x].green,
-                    img->data[y][x].red
-            };
+                image->data[y][x].blue,
+                image->data[y][x].green,
+                image->data[y][x].red
+        };
             fwrite(bgr, 1, 3, f);
         }
         fwrite(pad, 1, padding, f);
@@ -252,16 +268,6 @@ void bmp24_saveImage(t_bmp24 *img, const char *filename) {
 
     fclose(f);
     printf("Image save successfully in %s\n", filename);
-}
-void bmp24_printInfo(t_bmp24* image) {
-    if (!image) {
-        printf("Image is empty\n");
-        return;
-    }
-    printf("Image width : %d\n", image->width);
-    printf("Image height : %d\n", image->height);
-    printf("Image depth : %d\n", image->colorDepth);
-
 }
 
 
