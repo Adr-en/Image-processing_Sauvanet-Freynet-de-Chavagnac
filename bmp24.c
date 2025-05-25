@@ -1,6 +1,5 @@
 #include "bmp24.h"
 
-
 // Offsets for the BMP header
 #define BITMAP_MAGIC 0x00 // offset 0
 #define BITMAP_SIZE 0x02 // offset 2
@@ -28,7 +27,6 @@ void file_rawWrite (uint32_t position, void * buffer, uint32_t size, size_t n, F
     fseek(file, position, SEEK_SET);
     fwrite(buffer, size, n, file);
 }
-
 
 //Read & wright functions
 void bmp24_readPixelValue(t_bmp24 *image, int x, int y, FILE *f) {
@@ -120,14 +118,18 @@ t_bmp24 *bmp24_allocate(int width, int height, int colorDepth) {
     return image;
 }
 
+/* We had problems with opening the file using the different required functions
+ * So we decided to re-write everything in the function to make sure that it can work
+ * In the end, the function works but we couldn't use the functions that we did earlier
+ */
 t_bmp24 *bmp24_loadImage(const char *filename) {
     FILE *f = fopen(filename, "rb");
     if (!f) {
-        printf("Erreur ouverture fichier %s\n", filename);
+        printf("Can't open file : %s\n", filename);
         return NULL;
     }
 
-    // Manually read only the essential header fields
+    //Manually read due to the issue
     uint16_t type;
     int32_t width, height;
     uint16_t bits;
@@ -150,14 +152,14 @@ t_bmp24 *bmp24_loadImage(const char *filename) {
     fseek(f, 10, SEEK_SET);
     fread(&offset, sizeof(uint32_t), 1, f);
 
-    // Validate BMP 24-bit uncompressed format
+    //Validate BMP 24-bit uncompressed format
     if (type != 0x4D42 || bits != 24 || compression != 0) {
         printf("Incompatible file. BMP 24 bits must be uncompressed .\n");
         fclose(f);
         return NULL;
     }
 
-    // Allocate the structure
+    //Allocate the structure
     t_bmp24 *img = malloc(sizeof(t_bmp24));
     img->width = width;
     img->height = height;
@@ -169,7 +171,7 @@ t_bmp24 *bmp24_loadImage(const char *filename) {
         return NULL;
     }
 
-    // // Read pixel data starting at "offset", line by line (a big issues in the process of the bm24.c
+    //Read pixel data starting at "offset" line by line
     fseek(f, offset, SEEK_SET);
     int padding = (4 - (width * 3) % 4) % 4;
 
@@ -181,7 +183,7 @@ t_bmp24 *bmp24_loadImage(const char *filename) {
             img->data[height - 1 - y][x].green = bgr[1];
             img->data[height - 1 - y][x].red = bgr[2];
         }
-        // skip padding bytes
+        //Skip padding bytes
         fseek(f, padding, SEEK_CUR);
     }
 
@@ -190,6 +192,7 @@ t_bmp24 *bmp24_loadImage(const char *filename) {
     return img;
 }
 
+//Same for this function, we couldn't use the previous functions but we manage to make it work efficiently
 void bmp24_saveImage(t_bmp24 *img, const char *filename) {
     FILE *f = fopen(filename, "wb");
     if (!f) {
@@ -197,20 +200,20 @@ void bmp24_saveImage(t_bmp24 *img, const char *filename) {
         return;
     }
 
-    // // Write BMP header (14 bytes)
+    //Write BMP header (14 bytes)
     uint16_t type = 0x4D42;
     uint32_t offset = 54;
     uint32_t size = offset + (img->width * 3 + (4 - (img->width * 3 % 4)) % 4) * img->height;
     uint16_t reserved = 0;
 
-    // Write BMP info header (40 bytes)
+    //Write BMP info header (40 bytes)
     fwrite(&type, sizeof(uint16_t), 1, f);
     fwrite(&size, sizeof(uint32_t), 1, f);
     fwrite(&reserved, sizeof(uint16_t), 1, f);
     fwrite(&reserved, sizeof(uint16_t), 1, f);
     fwrite(&offset, sizeof(uint32_t), 1, f);
 
-    // Write header info (40 octets)
+    //Write header info (40 octets)
     uint32_t headerSize = 40;
     uint16_t planes = 1;
     uint16_t bits = 24;
@@ -227,12 +230,11 @@ void bmp24_saveImage(t_bmp24 *img, const char *filename) {
     fwrite(&imageSize, sizeof(uint32_t), 1, f);
     fwrite(&resolution, sizeof(int32_t), 1, f);
     fwrite(&resolution, sizeof(int32_t), 1, f);
-    // ncolors = 0
-    fwrite(&compression, sizeof(uint32_t), 1, f);
-    // important colors = 0
     fwrite(&compression, sizeof(uint32_t), 1, f);
 
-    // Write pixels
+    fwrite(&compression, sizeof(uint32_t), 1, f);
+
+    //Write pixels
     int padding = (4 - (img->width * 3) % 4) % 4;
     unsigned char pad[3] = {0, 0, 0};
 
@@ -264,6 +266,7 @@ void bmp24_printInfo(t_bmp24* image) {
 
 
 void bmp24_negative (t_bmp24 * image) {
+    //Inverting the colors of the image
     for (int y = 0; y < image->height; y++) {
         for (int x = 0; x < image->width; x++) {
             image->data[y][x].red = 255 - image->data[y][x].red;
@@ -274,6 +277,7 @@ void bmp24_negative (t_bmp24 * image) {
 }
 
 void bmp24_grayscale (t_bmp24 * image) {
+    //Putting each pixel value to gray
     for (int y = 0; y < image->height; y++) {
         for (int x = 0; x < image->width; x++) {
             uint8_t gray = (image->data[y][x].red + image->data[y][x].green + image->data[y][x].blue) / 3;
@@ -286,6 +290,7 @@ void bmp24_brightness (t_bmp24 * image, int value) {
     for (int y = 0; y < image->height; y++) {
         for (int x = 0; x < image->width; x++) {
 
+            //Modifying each pixel data to increase the brightness
             image->data[y][x].red = image->data[y][x].red + value;
             if (image->data[y][x].red > 255) image->data[y][x].red = 255;
 
