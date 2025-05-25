@@ -2,8 +2,7 @@
 // Created by adrie on 24/05/2025.
 //
 #include <stdio.h>
-#include "bmp8.h"
-#include "bmp24.h"
+
 #include "menu.h"
 
 
@@ -36,130 +35,127 @@ void displayFilterMenu() {
     printf("9. Return to the previous menu\n");
 }
 
-void openImage() {
+t_bmp8 *bmp8_openImage() {
     char filepath[256];
-    int bit;
     printf("File path: ");
     scanf("%255s", filepath);
-    printf("How much bit is it on?\n");
-    scanf("%d", &bit);
-    if (bit == 8) {
-        bmp8_loadImage(filepath);
-    }
-    if (bit == 24) {
-        bmp24_loadImage(filepath);
-    }
-
+    return bmp8_loadImage(filepath);
 }
 
-void saveImage() {
-    char filepath[256];
-    char filename[256];
-    int bit;
 
+t_bmp24 *bmp24_openImage() {
+    char filepath[256];
     printf("File path: ");
     scanf("%255s", filepath);
+    return bmp24_loadImage(filepath);
+}
 
-    printf("On what name do you want to register it ?\n");
+
+
+void saveImage(int const bit, void * img) {
+    char filename[256];
+    printf("On what name do you want to register it ? (put .bmp at the end of the name)\n");
     scanf("%s", filename);
 
-    printf("How much bit is it on?\n");
-    scanf("%d", &bit);
 
     if (bit == 8) {
-      bmp8_saveImage(filename, bmp8_loadImage(filepath));
+      bmp8_saveImage(filename, (t_bmp8 *) img);
     }
     if (bit == 24) {
-        bmp24_saveImage(bmp24_loadImage(filename),filename);
+        bmp24_saveImage((t_bmp24 *) img, filename);
     }
 
 }
 
-void bmp8_handleFilterChoice(int choice, char* filepath) {
+void bmp8_handleFilterChoice(int const choice, t_bmp8 *img) {
     int number;
     switch(choice) {
         case 1:
-            bmp8_negative(bmp8_loadImage(filepath));
+            bmp8_negative(img);
         break;
         case 2:
             printf("How much do you want to change the brightness (between 0 and 255) ?\n");
             scanf("%d", &number);
-            bmp8_brightness(bmp8_loadImage(filepath), number);
+            bmp8_brightness(img, number);
         break;
         case 3:
             printf("Which threshold do you want to chose (between 0 and 255) ?\n");
             scanf("%d", &number);
-            bmp8_threshold(bmp8_loadImage(filepath), number);
+            bmp8_threshold(img, number);
         break;
         case 4:
-            bmp8_applyFilter(bmp8_loadImage(filepath), box_blur, 3);
+            bmp8_applyFilter(img, box_blur, 3);
             printf("Box blur filter applied successfully!\n");
         break;
         case 5:
-            bmp8_applyFilter(bmp8_loadImage(filepath), gaussian_blur, 3);
+            bmp8_applyFilter(img, gaussian_blur, 3);
             printf("Gaussian blur filter applied successfully!\n");
         break;
         case 6:
-            bmp8_applyFilter(bmp8_loadImage(filepath), sharpen, 3);
+            bmp8_applyFilter(img, sharpen, 3);
             printf("Sharpness filter applied successfully!\n");
         break;
         case 7:
-            bmp8_applyFilter(bmp8_loadImage(filepath), outline, 3);
+            bmp8_applyFilter(img, outline, 3);
             printf("Outline filter applied successfully!\n");
         break;
         case 8:
-            bmp8_applyFilter(bmp8_loadImage(filepath), emboss, 3);
+            bmp8_applyFilter(img, emboss, 3);
             printf("Emboss filter applied successfully!\n");
+        break;
+
+        default:
+            printf("Wrong choice\n");
         break;
     }
 }
 
 
 
-void bmp24_handleFilterChoice(int choice, char* filepath) {
+void bmp24_handleFilterChoice(int const choice, t_bmp24 *img) {
     int number;
     switch(choice) {
         case 1:
-            bmp24_negative(bmp24_loadImage(filepath));
+            bmp24_negative(img);
         break;
         case 2:
             printf("How much do you want to change the brightness (between 0 and 255) ?\n");
             scanf("%d", &number);
-            bmp24_brightness(bmp24_loadImage(filepath), number);
+            bmp24_brightness(img, number);
         break;
         case 3:
-            bmp24_grayscale(bmp24_loadImage(filepath));
+            bmp24_grayscale(img);
         break;
         case 4:
-            bmp24_convolution(bmp24_loadImage(filepath),0,0, box_blur, 3);
+            bmp24_applyFilter(img, box_blur, 3);
         printf("Box blur filter applied successfully!\n");
         break;
         case 5:
-            bmp24_convolution(bmp24_loadImage(filepath),0,0, gaussian_blur, 3);
+            bmp24_applyFilter(img, gaussian_blur, 3);
         printf("Gaussian blur filter applied successfully!\n");
         break;
         case 6:
-            bmp24_convolution(bmp24_loadImage(filepath),0,0, sharpen, 3);
+            bmp24_applyFilter(img, sharpen, 3);
         printf("Sharpness filter applied successfully!\n");
         break;
         case 7:
-            bmp24_convolution(bmp24_loadImage(filepath),0,0, outline, 3);
+            bmp24_applyFilter(img, outline, 3);
         printf("Outline filter applied successfully!\n");
         break;
         case 8:
-            bmp24_convolution(bmp24_loadImage(filepath),0,0, emboss, 3);
+            bmp24_applyFilter(img, emboss, 3);
         printf("Emboss filter applied successfully!\n");
+        break;
+        default:
+            printf("Wrong choice\n");
         break;
     }
 }
 
-void applyFilter() {
-    char filepath[256];
+void applyFilter(int bit, void *img) {
     int choice_filter;
-    int bit;
-
-    printf("Which image do you want to modify?\n");
-    scanf("%s", filepath);
+    //tempo
+    bmp8_printInfo(img);
 
     do {
         displayFilterMenu();
@@ -167,27 +163,146 @@ void applyFilter() {
         scanf("%d", &choice_filter);
 
         if(choice_filter >= 1 && choice_filter <= 8) {
-            printf("How much bit takes the image (8 or 24)?\n");
-            scanf("%d", &bit);
-            if (bit == 8) {
-                bmp8_handleFilterChoice(choice_filter, filepath);
+            if (bit == 8)
+                bmp8_handleFilterChoice(choice_filter, img);
+            else
+                bmp24_handleFilterChoice(choice_filter, img);
              }
-            else {
-                if (bit == 24) {
-                    bmp24_handleFilterChoice(choice_filter, filepath);
-                }
-                else {printf("Can't manage this kind of images");
-                }
-            }
-
-        } else if(choice_filter != 9) {
+        else if(choice_filter != 9) {
             printf("Invalid choice. Please try again.\n");
         }
     } while(choice_filter != 9);
 }
 
 
-void displayImageInfo() {
-    // Here you would display image information
+void displayImageInfo(int bit, void * img) {
+    if (bit == 8)
+        bmp8_printInfo(img);
+    else
+        printf("Nope, nothing to say");
     printf("Image information displayed successfully!\n");
+}
+
+
+
+
+
+
+
+void test_gray() {
+
+    t_bmp8* img = bmp8_loadImage("lena_gray.bmp");
+
+    if (!img) {
+        printf("Failed to load image.\n");
+        return;
+    }
+
+    bmp8_printInfo(img);
+    printf("\n\n");
+
+    bmp8_negative(img);
+    printf("Applying negative filter.\n");
+    bmp8_saveImage("lena_gray_negative.bmp", img);
+    printf("Image saved as lena_gray_negative.bmp\n\n");
+
+
+    img = bmp8_loadImage("lena_gray.bmp");
+    printf("Applying brightness filter.\n");
+    bmp8_brightness(img, 50);
+    bmp8_saveImage("lena_gray_brightness.bmp", img);
+    printf("Image saved as lena_gray_brightness.bmp\n\n");
+
+
+    img = bmp8_loadImage("lena_gray.bmp");
+    printf("Applying threshold filter.\n");
+    bmp8_threshold(img, 128);
+    bmp8_saveImage("lena_gray_threshold.bmp", img);
+    printf("Image saved as lena_gray_threshold.bmp\n\n");
+
+
+    img = bmp8_loadImage("lena_gray.bmp");
+    printf("Applying outline filter.\n");
+    bmp8_applyFilter(img, outline, 3);
+    bmp8_saveImage("lena_gray_filtered.bmp", img);
+    printf("Image saved as lena_gray_outline.bmp\n\n");
+
+
+    img = bmp8_loadImage("lena_gray.bmp");
+    printf("Applying box blur filter.\n");
+    bmp8_applyFilter(img, box_blur, 3);
+    bmp8_saveImage("lena_gray_blur.bmp", img);
+    printf("Image saved as lena_gray_blur.bmp\n\n");
+
+
+    img = bmp8_loadImage("lena_gray.bmp");
+    printf("Applying Gaussian blur filter.\n");
+    bmp8_applyFilter(img, gaussian_blur, 3);
+    bmp8_saveImage("lena_gray_gaussian.bmp", img);
+    printf("Image saved as lena_gray_gaussian.bmp\n\n");
+
+
+    img = bmp8_loadImage("lena_gray.bmp");
+    printf("Applying sharpen filter.\n");
+    bmp8_applyFilter(img, sharpen, 3);
+    bmp8_saveImage("lena_gray_sharpen.bmp", img);
+    printf("Image saved as lena_gray_sharpen.bmp\n\n");
+
+
+    img = bmp8_loadImage("lena_gray.bmp");
+    printf("Applying emboss filter.\n");
+    bmp8_applyFilter(img, emboss, 3);
+    bmp8_saveImage("lena_gray_emboss.bmp", img);
+    printf("Image saved as lena_gray_emboss.bmp\n\n");
+
+
+
+    img = bmp8_loadImage("lena_gray.bmp");
+    unsigned int *hist = bmp8_computeHistogram(img);
+    unsigned int *cdf = bmp8_computeCDF(hist);
+
+        // Find minimum non-zero value in CDF
+    unsigned int cdf_min = 0;
+    for (int i = 0; i < 256; i++) {
+        if (cdf[i] > 0) {
+            cdf_min = cdf[i];
+            break;
+        }
+    }
+
+
+    unsigned int *hist_eq = (unsigned int *)malloc(256 * sizeof(unsigned int));
+
+    //Verification
+    if (hist_eq == NULL) {
+        printf("Failed to allocate memory for equalized histogram\n");
+        free(hist);
+        free(cdf);
+        bmp8_free(img);
+        return;
+    }
+
+
+    // Normalize the CDF to create the equalization mapping
+    for (int i = 0; i < 256; i++) {
+        if (cdf[i] > 0) {
+            hist_eq[i] = (unsigned int)roundf(((float)(cdf[i] - cdf_min) / ((float)img -> dataSize - (float)cdf_min)) * 255);
+        } else {
+            hist_eq[i] = 0;
+        }
+    }
+
+    printf("Applying equalisation filter.\n");
+    bmp8_equalize(img, hist_eq);
+    bmp8_saveImage("lena_gray_equalized.bmp", img);
+    printf("Image saved as lena_gray_equalized.bmp\n\n");
+
+
+    free(hist);
+    free(cdf);
+    free(hist_eq);
+    bmp8_free(img);
+
+    printf("Everything was freed");
+    printf("Everything work well, you can go see images in the cmake-build-debug repository");
 }

@@ -2,8 +2,10 @@
 #define BMP24_H
 
 #include <stdint.h> //for uint8_t, uint16_t, uint32_t
-#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stdio.h>
 
 
 //Structures
@@ -59,4 +61,5 @@ void bmp24_grayscale(t_bmp24* image);
 void bmp24_brightness(t_bmp24* image, int value);
 
 t_pixel bmp24_convolution(t_bmp24 *image, int x, int y, float **kernel, int kernelSize);
+void bmp24_applyFilter(t_bmp24 *image, float **kernel, int kernelSize);
 #endif

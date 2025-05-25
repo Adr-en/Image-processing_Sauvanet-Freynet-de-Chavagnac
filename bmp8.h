@@ -1,6 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+
 
 #ifndef BMP8_H
 #define BMP8_H

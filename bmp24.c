@@ -1,7 +1,5 @@
 #include "bmp24.h"
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+
 
 // Offsets for the BMP header
 #define BITMAP_MAGIC 0x00 // offset 0
@@ -124,6 +122,7 @@ t_bmp24 *bmp24_allocate(int width, int height, int colorDepth) {
 
 
 t_bmp24 *bmp24_loadImage(const char *f_name) {
+
     FILE *f = fopen(f_name, "rb"); //We need to use "rb" to open a file into "read binary" mode
     if (!f) {
         printf("Error : can't open file : %s", f_name);
@@ -169,6 +168,8 @@ t_bmp24 *bmp24_loadImage(const char *f_name) {
 
 
 void bmp24_saveImage(t_bmp24* image, const char* f_name) {
+    if (!image)
+        printf("Image is empty\n");
     FILE *f = fopen(f_name, "wb"); //Open the file in binary write mode and checks if no errors
     if (!f) {
         fclose(f);

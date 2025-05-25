@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "bmp8.h"
+#include <math.h>
 
 
 
@@ -51,6 +52,9 @@ t_bmp8* bmp8_loadImage(const char* f_name) {
 
 
 void bmp8_saveImage(const char* f_name, t_bmp8* img) {
+    if(!img)
+        printf("Image is empty\n");
+
     FILE* f = fopen(f_name, "wb");
     if (!f) {
         printf("Error: Could not open file %s for writing\n", f_name);
@@ -121,9 +125,9 @@ void bmp8_applyFilter(t_bmp8 *img, float **kernel, int kernelSize) {
         return;
     }
 
-    int width = img->width;
-    int height = img->height;
-    int expectedSize = width * height;
+    int const width = (int) img->width;
+    int const height = (int) img->height;
+    int const expectedSize = width * height;
     if (img->dataSize != expectedSize) {
         fprintf(stderr, "Erreur : taille de données incohérente (%u au lieu de %u).\n", img->dataSize, expectedSize);
         return;
@@ -146,14 +150,14 @@ void bmp8_applyFilter(t_bmp8 *img, float **kernel, int kernelSize) {
     // Application du filtre par convolution (sans gérer les bords)
     for (int y = n; y < height - n; y++) {
         for (int x = n; x < width - n; x++) {
-            float sum = 0.0;
+            float sum = (float) 0.0;
             for (int i = -n; i <= n; i++) {
                 for (int j = -n; j <= n; j++) {
                     int xi = x + j;
                     int yi = y + i;
                     if (xi >= 0 && xi < width && yi >= 0 && yi < height) {
-                        unsigned char pixel = temp[yi * width + xi];
-                        sum += pixel * kernel[i + n][j + n];
+                        unsigned char const pixel = temp[yi * width + xi];
+                        sum += (float) pixel * kernel[i + n][j + n];
                     }
                 }
             }
@@ -179,6 +183,7 @@ unsigned int *bmp8_computeHistogram(t_bmp8 *img) {
 
     unsigned int *hist = (unsigned int *)calloc(256, sizeof(unsigned int));
     if (hist == NULL) {
+        printf("Failed to compute histogram\n");
         return NULL;
     }
 
@@ -200,8 +205,11 @@ unsigned int *bmp8_computeCDF(unsigned int *hist) {
 
     unsigned int *cdf = (unsigned int *)malloc(256 * sizeof(unsigned int));
     if (cdf == NULL) {
+        printf("Failed to compute CDF\n");
+        free(hist);
         return NULL;
     }
+
 
     cdf[0] = hist[0];
     for (int i = 1; i < 256; i++) {
@@ -211,7 +219,7 @@ unsigned int *bmp8_computeCDF(unsigned int *hist) {
 }
 
 
-void bmp8_equalize(t_bmp8 *img, unsigned int *hist_eq) {
+void bmp8_equalize(t_bmp8 * img, unsigned int *hist_eq) {
     if (img == NULL || img->data == NULL || hist_eq == NULL) {
         return;
     }
