@@ -60,7 +60,7 @@ int main() {
         }
 
 
-    test_gray();
+    bmp8_test();
 
 
     int answer = 0;

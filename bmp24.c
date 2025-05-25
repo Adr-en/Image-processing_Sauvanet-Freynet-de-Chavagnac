@@ -187,6 +187,20 @@ void bmp24_saveImage(t_bmp24* image, const char* f_name) {
 }
 
 
+
+void bmp24_printInfo(t_bmp24* image) {
+    if (!image) {
+        printf("Image is empty\n");
+        return;
+    }
+    printf("Image width : %d\n", image->width);
+    printf("Image height : %d\n", image->height);
+    printf("Image depth : %d\n", image->colorDepth);
+
+}
+
+
+
 void bmp24_negative (t_bmp24 * image) {
     for (int y = 0; y < image->height; y++) {
         for (int x = 0; x < image->width; x++) {

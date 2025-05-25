@@ -54,6 +54,7 @@ typedef struct {
 //Functions of the file
 t_bmp24* bmp24_loadImage(const char* f_name);
 void bmp24_saveImage(t_bmp24* image, const char* f_name);
+void bmp24_printInfo(t_bmp24* image);
 void bmp24_free(t_bmp24* image);
 
 void bmp24_negative(t_bmp24* image);

@@ -179,7 +179,7 @@ void displayImageInfo(int bit, void * img) {
     if (bit == 8)
         bmp8_printInfo(img);
     else
-        printf("Nope, nothing to say");
+        bmp24_printInfo(img);
     printf("Image information displayed successfully!\n");
 }
 
@@ -189,7 +189,7 @@ void displayImageInfo(int bit, void * img) {
 
 
 
-void test_gray() {
+void bmp8_test() {
 
     t_bmp8* img = bmp8_loadImage("lena_gray.bmp");
 
