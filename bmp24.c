@@ -67,6 +67,9 @@ void bmp24_writePixelData(t_bmp24 *image, FILE *f) {
 
 
 //Exercises functions
+
+//Dynamically allocate memory for a t_pixel matrix of size width × height,
+//and return the address allocated in the heap. If the allocation fails, the function displays an error message and returns NULL
 t_pixel **bmp24_allocateDataPixels(int width, int height) {
     //We allocate memory for each row (height)
     t_pixel **pixels = (t_pixel **)malloc(height * sizeof(t_pixel *));
@@ -88,7 +91,7 @@ t_pixel **bmp24_allocateDataPixels(int width, int height) {
     return pixels;
 }
 
-
+//Free all the memory allocated for the t_pixel matrix pixels.
 void bmp24_freeDataPixels(t_pixel **pixels, int height) {
     for (int i = 0; i < height; i++) {
         //Free each row
@@ -98,7 +101,11 @@ void bmp24_freeDataPixels(t_pixel **pixels, int height) {
     free(pixels);
 }
 
-
+//Dynamically allocate memory for a t_bmp24 image. This function must call the function
+//bmp24_allocateDataPixels to allocate the data matrix. Then it initializes the width, height and
+//colorDepth fields of the image with the values received as parameters. Finally, it returns the address
+//of the image allocated in the heap. If the allocation fails, the function frees all the memory already
+//allocated for the matrix, then displays an error message and returns NULL.
 t_bmp24 *bmp24_allocate(int width, int height, int colorDepth) {
     t_bmp24 *image = (t_bmp24 *)malloc(sizeof(t_bmp24));
     if (!image) {
