@@ -1,3 +1,6 @@
+/* This file is the header of the bmp24.c file
+ * Here every function of the bmp24.c file is listed and te$hne can be called
+ */
 #ifndef BMP24_H
 #define BMP24_H
 
