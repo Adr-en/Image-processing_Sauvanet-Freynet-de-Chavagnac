@@ -306,3 +306,86 @@ void bmp8_test() {
     printf("Everything was freed");
     printf("Everything work well, you can go see images in the cmake-build-debug repository");
 }
+
+
+
+
+void bmp24_test() {
+    t_bmp24* img = bmp24_loadImage("lena_color.bmp");
+
+    if (!img) {
+        printf("Failed to load image.\n");
+        return;
+    }
+
+    bmp24_printInfo(img);
+    printf("\n\n");
+
+    // Negative
+    bmp24_negative(img);
+    printf("Applying negative filter.\n");
+    bmp24_saveImage(img, "lena_color_negative.bmp");
+    printf("Image saved as lena_color_negative.bmp\n\n");
+
+    // Brightness
+    img = bmp24_loadImage("lena_color.bmp");
+    printf("Applying brightness filter.\n");
+    bmp24_brightness(img, 50);
+    bmp24_saveImage(img, "lena_color_brightness.bmp");
+    printf("Image saved as lena_color_brightness.bmp\n\n");
+
+    // Grayscale
+    img = bmp24_loadImage("lena_color.bmp");
+    printf("Applying grayscale filter.\n");
+    bmp24_grayscale(img);
+    bmp24_saveImage(img, "lena_color_grayscale.bmp");
+    printf("Image saved as lena_color_grayscale.bmp\n\n");
+
+    // Outline
+    img = bmp24_loadImage("lena_color.bmp");
+    printf("Applying outline filter.\n");
+    bmp24_applyFilter(img, outline, 3);
+    bmp24_saveImage(img, "lena_color_outline.bmp");
+    printf("Image saved as lena_color_outline.bmp\n\n");
+
+    // Box blur
+    img = bmp24_loadImage("lena_color.bmp");
+    printf("Applying box blur filter.\n");
+    bmp24_applyFilter(img, box_blur, 3);
+    bmp24_saveImage(img, "lena_color_blur.bmp");
+    printf("Image saved as lena_color_blur.bmp\n\n");
+
+    // Gaussian blur
+    img = bmp24_loadImage("lena_color.bmp");
+    printf("Applying Gaussian blur filter.\n");
+    bmp24_applyFilter(img, gaussian_blur, 3);
+    bmp24_saveImage(img, "lena_color_gaussian.bmp");
+    printf("Image saved as lena_color_gaussian.bmp\n\n");
+
+    // Sharpen
+    img = bmp24_loadImage("lena_color.bmp");
+    printf("Applying sharpen filter.\n");
+    bmp24_applyFilter(img, sharpen, 3);
+    bmp24_saveImage(img, "lena_color_sharpen.bmp");
+    printf("Image saved as lena_color_sharpen.bmp\n\n");
+
+    // Emboss
+    img = bmp24_loadImage("lena_color.bmp");
+    printf("Applying emboss filter.\n");
+    bmp24_applyFilter(img, emboss, 3);
+    bmp24_saveImage(img, "lena_color_emboss.bmp");
+    printf("Image saved as lena_color_emboss.bmp\n\n");
+
+    // Equalization
+    img = bmp24_loadImage("lena_color.bmp");
+    printf("Applying equalisation filter.\n");
+    bmp24_equalize(img);
+    bmp24_saveImage(img, "lena_color_equalized.bmp");
+    printf("Image saved as lena_color_equalized.bmp\n\n");
+
+    // Libération mémoire
+    bmp24_free(img);
+
+    printf("Everything was freed.\n");
+    printf("Everything works well, you can go see images in the cmake-build-debug repository.\n");
+}

@@ -69,7 +69,7 @@ void bmp24_writePixelData(t_bmp24 *image, FILE *f) {
 
 
 //Exercises functions
-static t_pixel **bmp24_allocateDataPixels(int width, int height) {
+t_pixel **bmp24_allocateDataPixels(int width, int height) {
     //We allocate memory for each row (height)
     t_pixel **pixels = (t_pixel **)malloc(height * sizeof(t_pixel *));
     //Check if allocation failed
@@ -91,7 +91,7 @@ static t_pixel **bmp24_allocateDataPixels(int width, int height) {
 }
 
 
-static void bmp24_freeDataPixels(t_pixel **pixels, int height) {
+void bmp24_freeDataPixels(t_pixel **pixels, int height) {
     for (int i = 0; i < height; i++) {
         //Free each row
         free(pixels[i]);
@@ -352,5 +352,12 @@ void bmp24_equalize(t_bmp24 *image) {
             p->green = equalized_G[p->green];
             p->blue  = equalized_B[p->blue];
         }
+    }
+}
+
+void bmp24_free(t_bmp24* img) {
+    if (img) {
+        bmp24_freeDataPixels(img->data, img->height);
+        free(img);
     }
 }

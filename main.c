@@ -60,7 +60,7 @@ int main() {
         }
 
 
-    bmp8_test();
+    bmp24_test();
 
 
     int answer = 0;

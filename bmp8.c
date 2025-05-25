@@ -27,7 +27,7 @@ t_bmp8* bmp8_loadImage(const char* f_name) {
     img->width = *(unsigned int*)(&img->header[18]);
     img->height = *(unsigned int*)(&img->header[22]);
     img->colorDepth = *(unsigned int*)(&img->header[28]);
-    img->dataSize = *(unsigned int*)(&img->header[34]);
+    img->dataSize = img->width * img->height;
 
     if (img->colorDepth != 8) {
         printf("Error: Not an 8-bit grayscale image\n");

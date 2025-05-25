@@ -24,6 +24,7 @@ void displayImageInfo(int bit, void * img);
 void bmp8_handleFilterChoice(int choice, t_bmp8 *img);
 void bmp24_handleFilterChoice(int choice, t_bmp24 *img);
 void bmp8_test();
+void bmp24_test();
 
 
 
