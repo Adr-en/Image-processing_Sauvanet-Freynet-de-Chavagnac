@@ -203,7 +203,6 @@ void bmp24_printInfo(t_bmp24* image) {
     printf("Image width : %d\n", image->width);
     printf("Image height : %d\n", image->height);
     printf("Image depth : %d\n", image->colorDepth);
-    printf("Image data : \n",);
 
 }
 
