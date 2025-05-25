@@ -80,15 +80,42 @@ The text-based interface guides users through a hierarchical menu system:
    - Image loading/saving
    - Program exit
 
+- displayMainMenu():
+Displays the main menu with options for loading, saving, filtering, and exiting the program.
+- displayFilterMenu():
+Displays a sub-menu for choosing an image filter to apply.
+- bmp8_openImage():
+Prompts the user for a file path and loads a grayscale (8-bit) image from disk.
+- bmp24_openImage():
+Prompts the user for a file path and loads a color (24-bit) image from disk.
+- saveImage(int bit, void *img):
+Saves either a grayscale or color image to disk based on user input and image type
+
 2. Processing Menu (Operation Selection)
    - Filter application
    - Color adjustment
    - Histogram operations
 
+- bmp8_handleFilterChoice(int choice, t_bmp8 *img):
+Processes the selected filter option and applies the corresponding transformation to a grayscale image.
+- bmp24_handleFilterChoice(int choice, t_bmp24 *img):
+Processes the selected filter option and applies the corresponding transformation to a color image.
+- applyFilter(int bit, void *img):
+Displays the filter menu and routes the filter logic to the appropriate grayscale or color handler based on image type.
+- displayImageInfo(int bit, void *img):
+Displays image information (width, height, color depth, etc.) for either grayscale or color images.
+
+
 3. Parameter Menus (Operation Configuration)
    - Filter type selection
    - Adjustment value input
    - File path specification
+
+Also we have these two function that allowed us to test our work with the two types of images :
+- bmp8_test():
+Demonstrates and tests all filters and histogram equalization on a grayscale image using "lena_gray.bmp", saving each result.
+- bmp24_test():
+Demonstrates and tests all filters and histogram equalization on a color image using "lena_color.bmp", saving each result.
 
 Navigation follows standard conventions with numbered options and clear prompts. The interface validates all input and provides error feedback for invalid selections or file operations.
 
