@@ -35,13 +35,19 @@ Image processing operations include:
 
 ### 2.2 24-bit Color Image Processing
 
-The bmp24 module extends functionality to color images:
+The bmp24 module manages operations for 24-bit color BMP images, where each pixel stores separate red, green, and blue values. It extends the grayscale functionality to color images.
 
-bmp24_loadImage and bmp24_saveImage handle the more complex 24-bit BMP format, managing three color channels per pixel. The loader verifies color depth and handles pixel data organization.
+The primary functions include:
+- bmp24_loadImage / bmp24_saveImage: Load and save color BMP images while preserving header structure and correct pixel formatting. Each pixel is read or written as a combination of three 8-bit channels (BGR order in BMP).
+- bmp24_printInfo : Displays image width, height, color depth (should be 24), and image data size.
 
-Color-specific transformations include:
-- bmp24_grayscale: Converts RGB values to luminance using the standard weighting formula (0.299R + 0.587G + 0.114B)
-- bmp24_equalize: Performs histogram equalization in YUV color space for natural-looking contrast enhancement
+Image processing operations include:
+- bmp24_negative: Inverts the image’s colors by subtracting each RGB value from 255, producing a photographic negative effect.
+- bmp24_grayscale: Converts the color image to grayscale using the weighted luminance formula (0.299R + 0.587G + 0.114B), resulting in a single intensity value applied to all three channels.
+- bmp24_brightness: Adjusts brightness across all color channels by adding or subtracting a constant value while keeping pixel values within the 0–255 range.
+- bmp24_applyFilter: Applies convolution filters (like blur, sharpen, or edge detection) over each RGB channel independently using a user-defined kernel, enhancing or modifying local pixel contrast.
+
+This module enables advanced image enhancement while preserving color integrity.
 
 ### 2.3 Histogram Operations
 
@@ -51,6 +57,11 @@ The histogram processing system consists of three core functions:
 - bmp8_computeCDF transforms this histogram into a cumulative distribution function, enabling histogram equalization calculations.
 - bmp8_equalize applies the equalization transform to redistribute pixel values across the full intensity range, significantly improving contrast in underexposed or overexposed images.
 
+And for color images :
+- bmp24_equalize: Converts the image to YUV color space and equalizes only the luminance (Y) channel. This method improves contrast while preserving natural color tones, making it more suitable for    
+  realistic results.
+
+  
 ## 3. Project Architecture
 
 The codebase follows a modular structure:
