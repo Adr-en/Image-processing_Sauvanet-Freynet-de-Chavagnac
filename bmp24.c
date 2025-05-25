@@ -129,6 +129,7 @@ t_bmp24 *bmp24_allocate(int width, int height, int colorDepth) {
  * So we decided to re-write everything in the function to make sure that it can work
  * In the end, the function works but we couldn't use the functions that we did earlier
  */
+//The function will read a BMP 24-bit image file and load it into a t_bmp24 structure.
 t_bmp24 *bmp24_loadImage(const char *filename) {
     FILE *f = fopen(filename, "rb");
     if (!f) {
@@ -137,7 +138,6 @@ t_bmp24 *bmp24_loadImage(const char *filename) {
     }
 
     //Manually read due to the issue
-    // variable initialisation
     uint16_t type;
     uint16_t bits;
 
@@ -145,7 +145,6 @@ t_bmp24 *bmp24_loadImage(const char *filename) {
     uint32_t compression, offset;
 
     fseek(f, 0, SEEK_SET);
-    // BMP signature
     fread(&type, sizeof(uint16_t), 1, f);
 
     fseek(f, 18, SEEK_SET);
@@ -159,14 +158,14 @@ t_bmp24 *bmp24_loadImage(const char *filename) {
     fseek(f, 10, SEEK_SET);
     fread(&offset, sizeof(uint32_t), 1, f);
 
-    // Check if compressed or not
+    //Check if compressed or not
     if (type != 0x4D42 || bits != 24 || compression != 0) {
         printf("Incompatible file. BMP 24 bits must be uncompressed .\n");
         fclose(f);
         return NULL;
     }
 
-    // Allocation of memory
+    //Allocate the memory
     t_bmp24 *img = malloc(sizeof(t_bmp24));
     img->width = width;
     img->height = height;
@@ -180,7 +179,7 @@ t_bmp24 *bmp24_loadImage(const char *filename) {
         return NULL;
     }
 
-    // Changing each pixel line by line
+    //Changing each pixel line by line
     fseek(f, offset, SEEK_SET);
     int padding = (4 - (width * 3) % 4) % 4;
 
@@ -213,8 +212,8 @@ void bmp24_printInfo(t_bmp24* image) {
 
 }
 
- // Same for this function, we couldn't use the previous functions but we manage to make it work efficiently
-
+//Same for this function, we couldn't use the previous functions but we manage to make it work efficiently
+//The function will save a t_bmp24 image into a file in BMP 24-bit format.
 void bmp24_saveImage(t_bmp24 *image, const char *filename) {
     FILE *f = fopen(filename, "wb");
     if (!f) {
@@ -222,13 +221,12 @@ void bmp24_saveImage(t_bmp24 *image, const char *filename) {
         return;
     }
 
-    // Variable initialisation
     uint16_t type = 0x4D42;
     uint32_t offset = 54;
     uint32_t size = offset + (image->width * 3 + (4 - (image->width * 3 % 4)) % 4) * image->height;
     uint16_t reserved = 0;
 
-    // Writing every info
+    //Writing every info
     fwrite(&type, sizeof(uint16_t), 1, f);
     fwrite(&size, sizeof(uint32_t), 1, f);
     fwrite(&reserved, sizeof(uint16_t), 1, f);
@@ -315,6 +313,9 @@ void bmp24_brightness (t_bmp24 * image, int value) {
     }
 }
 
+//This function will apply a convolution filter to a given pixel (x, y) of the image img using the convolution
+//kernel kernel of size kernelSize. The function computes and returns the new value of the pixel after applying
+//the filter.
 t_pixel bmp24_convolution(t_bmp24 *image, int x, int y, float **kernel, int kernelSize) {
 
     float red = 0, green = 0, blue = 0;
